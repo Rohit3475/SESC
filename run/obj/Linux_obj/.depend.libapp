@@ -1,0 +1,13 @@
+
+$(OBJ)/libapp.a:$(OBJ)/sesc_thread.o $(OBJ)/sesc_events.o $(OBJ)/sesc_locks.o $(OBJ)/sesc_fortran.o $(OBJ)/sesc_chud.o
+$(OBJ)/sesc_events.o: /home/rohit/sesc/src/libapp/sesc_events.c /home/rohit/sesc/src/libapp/sescapi.h /home/rohit/sesc/src/libapp/simicsapi.h
+$(OBJ)/sesc_locks.o: /home/rohit/sesc/src/libapp/sesc_locks.c /home/rohit/sesc/src/libapp/sescapi.h /home/rohit/sesc/src/libapp/simicsapi.h
+$(OBJ)/sesc_fortran.o: /home/rohit/sesc/src/libapp/sesc_fortran.c /home/rohit/sesc/src/libapp/sescapi.h /home/rohit/sesc/src/libapp/simicsapi.h
+$(OBJ)/sesc_thread.o: /home/rohit/sesc/src/libapp/sesc_thread.c /home/rohit/sesc/src/libapp/sescapi.h /home/rohit/sesc/src/libapp/simicsapi.h
+$(OBJ)/sesc_tls.o: /home/rohit/sesc/src/libapp/sesc_tls.c /home/rohit/sesc/src/libapp/sescapi.h /home/rohit/sesc/src/libapp/simicsapi.h
+$(OBJ)/sesc_ts.o: /home/rohit/sesc/src/libapp/sesc_ts.c /home/rohit/sesc/src/libapp/sescapi.h /home/rohit/sesc/src/libapp/simicsapi.h
+
+
+
+
+

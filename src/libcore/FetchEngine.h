@@ -32,7 +32,7 @@ Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 #include "BPred.h"
 #include "GStats.h"
 #include "Events.h"
-
+#include<map>
 #ifdef TASKSCALAR
 #include "TaskContext.h"
 #endif
@@ -49,6 +49,12 @@ class IBucket;
 class GProcessor;
 
 class FetchEngine {
+  struct block
+  {
+    long long cnt;
+    long long end;
+  } bb;
+
 private:
   // Static data
   static long long nInst2Sim;
@@ -87,9 +93,13 @@ private:
   ushort maxBB;
   TimeDelta_t BTACDelay;
   TimeDelta_t IL1HitDelay;
-
+  short flag;
+  std::map <long long, struct block> mymap;
+  std::map <long long, struct block>::iterator it;
+  std::pair <std::map<long long, struct block>::iterator, bool> ret;
+  FILE *fptr_flow, *fptr_cnt;
 #ifdef TASKSCALAR
-  SubLVIDType subLVID;
+      SubLVIDType subLVID;
   GLVID       *LVID;
 #endif 
 

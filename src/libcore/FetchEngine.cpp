@@ -67,6 +67,12 @@ FetchEngine::FetchEngine(int32_t cId
   ,szFS("FetchEngine(%d):szFS", i)
   ,unBlockFetchCB(this)
 {
+
+  flag=1;
+  bb.cnt = 1000000000LL;
+  bb.end = 1000000000LL;
+  fptr_flow = fopen("/home/rohit/sesc/build/flow.out", "w");
+  fptr_cnt = fopen("/home/rohit/sesc/build/cnt.out", "w");
   // Constraints
   SescConf->isInt("cpucore", "fetchWidth",cId);
   SescConf->isBetween("cpucore", "fetchWidth", 1, 1024, cId);
@@ -129,6 +135,12 @@ FetchEngine::FetchEngine(int32_t cId
 
 FetchEngine::~FetchEngine()
 {
+
+  for(it = mymap.begin() ; it  != mymap.end(); it++ ){
+      fprintf(fptr_cnt, "%lld!%lld!%lld\n", (*it).first, (*it).second.end, (*it).second.cnt);
+  }
+  fclose(fptr_flow);
+  fclose(fptr_cnt);
 #ifndef TRACE_DRIVEN
   // There should be a RunningProc::switchOut that clears the statistics
   I(nGradInsts  == 0);
@@ -298,15 +310,49 @@ void FetchEngine::realFetch(IBucket *bucket, int32_t fetchMax)
   
     bbSize++;
     fbSize++;
-    if(inst->isBranch()) {
-      szBB.sample(bbSize);
-      bbSize=0;
-      
-      if (!processBranch(dinst, n2Fetched)) {
-	break;
+    // our code
+    if(flag==1){
+
+      if (bb.cnt == inst->currentID() || (bb.end > inst->currentID() && bb.cnt > inst->currentID()) || (bb.end + 2 < inst->currentID() && bb.cnt < inst-> currentID()))
+      {
+        bb.cnt=inst->currentID();
+        bb.end=-1;
+        flag=0;
+      }
+      else if(bb.end == inst->currentID()-1){
+        flag=0;
       }
     }
 
+          if (inst->isBranch())
+      {
+        szBB.sample(bbSize);
+        bbSize = 0;
+        long long st, start;
+        flag = 1;
+        start = bb.end;
+        st = bb.cnt;
+        bb.cnt=1;
+        bb.end = inst->currentID();
+        if (start == -1) start = st;
+        if (start == bb.end + 1) start = bb.end;
+        int found = 0;
+        it = mymap.find(start);
+        if(it!=mymap.end()){
+          bb.cnt=++(it->second).cnt;
+          found=1;
+        }
+        if(found==0){
+          mymap.insert(std::pair<long long, struct block>(start, bb));
+        }
+        fprintf(fptr_flow, "%lld!%lld!%lld\n", start, bb.end, globalClock);
+        bb.end+= 1;
+        bb.cnt = inst->getTarget();
+        if (!processBranch(dinst, n2Fetched))
+        {
+          break;
+        }
+      }
   }while(n2Fetched>0 && flow.currentPid()==myPid);
 
 #ifdef TASKSCALAR
